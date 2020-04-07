@@ -1,6 +1,4 @@
-# https://f1tzy.github.io/backp/
-
-## Mesto project
+# Mesto project
 
 Версия проекта: v0.0.1
 
