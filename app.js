@@ -15,6 +15,7 @@ app.use('*', (req, res, next) => {
   next(res.status(404).send({ message: 'Запрашиваемый ресурс не найден' }));
 });
 
+// запускаем сервер на 3000 порте
 app.listen(PORT, () => {
   console.log('Ссылка на сервер:');
   console.log(BASE_PATH);
