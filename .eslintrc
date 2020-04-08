@@ -1,4 +1,9 @@
 {
-  "extends": "airbnb-base",
-  "no-underscore-dangle": 0 //правило для пропуска _id
+  "extends": [
+    "airbnb-base"
+  ],
+
+  "rules": {
+    "no-underscore-dangle": "off" //правило для пропуска _id
+  }
 }

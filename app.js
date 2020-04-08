@@ -13,9 +13,8 @@ app.use(express.static(`${__dirname}/public`));
 app.use('/', router);
 
 // ошибка на не существующий ресурс
-app.use('*', (req, res, next) => {
+app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-  next(true);
 });
 
 // запускаем сервер на 3000 порте
