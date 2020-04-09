@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const cards = require('../../data/cards');
 
 // возвращаем список карточек
