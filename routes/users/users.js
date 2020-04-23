@@ -1,22 +1,9 @@
 const router = require('express').Router();
 
-const users = require('../../data/users');
+const { createUser, getAllUsers, getUser } = require('../../controllers/users');
 
-// возвращаем список пользователей
-router.get('/', (req, res) => {
-  res.send(users);
-});
-
-
-// возвращаем пользователя с id
-router.get('/:id', (req, res) => {
-  const idUser = users.find((user) => user._id === req.params.id);
-  if (!idUser) {
-    res.status(404).send({ message: 'Нет пользователя с таким id' });
-    return;
-  }
-  res.send(idUser);
-});
-
+router.get('/', getAllUsers);// возвращаем список пользователей
+router.post('/', createUser);// создание пользователя
+router.get('/:id', getUser);// получения пользователя по id
 
 module.exports = router;
