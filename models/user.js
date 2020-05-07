@@ -39,7 +39,7 @@ userSchema.path('avatar').validate(validator.isURL, INVALID_LINK);
 userSchema.plugin(uniqueValidator, NOT_UNIQUE_EMAIL);
 userSchema.path('email').validate(validator.isEmail, INVALID_EMAIL);
 
-// смотрим есть ли такой пользователь, если нету выдаем ошибку
+// проверяем данные пользователя
 userSchema.statics.findUsersData = function checkUser(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
