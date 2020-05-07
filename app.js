@@ -1,21 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const router = require('./routes/index.js');// роутер карточек и пользователя
+const { PORT, DATA_URL } = require('./config/config');
+const { login, createUser } = require('./controllers/users');// авторизация и регистрация пользователя
 
-const { PORT = 3000 } = process.env;
+
 const app = express();
 
-// временное решение авторизации
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5ea175ee2b6da72500938278',
-  };
-  next();
-});
+app.use(cookieParser());
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(DATA_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -27,6 +25,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // общий запрос на роутер
 app.use('/', router);
+
+// запрос на логин
+app.post('/signin', login);
+
+// запрос на регистрацию пользовотеля
+app.post('/signup', createUser);
 
 // ошибка на не существующий ресурс
 app.use('*', (req, res) => {
