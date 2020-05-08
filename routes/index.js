@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
-const users = require('./users/users');
-const cards = require('./cards/cards');
+const users = require('./users');
+const cards = require('./cards');
 const auth = require('../middlewares/auth');// middleware авторизации
 
 router.use('/cards', auth, cards);
