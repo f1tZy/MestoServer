@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { createCard, getAllCards, deleteCard } = require('../../controllers/cards');// вытаскиваем методы карточек
+const { createCard, getAllCards, deleteCard } = require('../controllers/cards');// вытаскиваем методы карточек
 
 router.get('/', getAllCards);// возвращаем список карточек
 router.post('/', createCard);// создание карточки
