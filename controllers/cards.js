@@ -17,7 +17,7 @@ module.exports.getAllCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  cardModel.findByIdAndRemove(req.params.id)
+  cardModel.findById(req.params.id)
     .then((card) => {
       if (card === null) return res.status(404).send({ message: 'Невозможно удалить, карточка с таким ID не найдена' });
       if (!card.owner.equals(req.user._id)) {
