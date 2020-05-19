@@ -3,8 +3,9 @@ const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/user');
 const { JWT_SECRET } = require('../config/config');
+const { NotFoundError, UnauthorizedError } = require('../status_errors/index_errors');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -23,10 +24,10 @@ module.exports.createUser = (req, res) => {
         avatar: user.avatar,
       });
     })
-    .catch((err) => res.status(500).send({ message: `Ошибка создания пользовотеля. ${err}` }));
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   // вытаскиваем функцию проверки юзера, если успешно выдаем токен, если нет-пробрасываем ошибку
@@ -39,19 +40,22 @@ module.exports.login = (req, res) => {
         sameSite: true,
       }).send({ message: 'Авторизация прошла успешно' });
     })
-    .catch(() => {
-      res.status(401).send({ message: 'Неправильные почта и пароль' });
-    });
+    .catch(() => next(new UnauthorizedError('Неправильные почта или пароль')));
 };
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   userModel.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Пользователи не найдены' }));
+    .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   userModel.findById(req.params.id)
-    .then((user) => (user === null ? res.status(404).send({ message: 'Пользователь не найден' }) : res.send({ data: user })))
-    .catch(() => res.status(500).send({ message: 'Пользователя с таким id не существует' }));
+    .then((user) => {
+      if (user === null) {
+        throw new NotFoundError('Такой пользователь не найден');
+      }
+      return res.send({ data: user });
+    })
+    .catch(next);
 };
