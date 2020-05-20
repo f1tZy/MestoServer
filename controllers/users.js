@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/user');
 const { JWT_SECRET } = require('../config/config');
-const { NotFoundError, UnauthorizedError } = require('../status_errors/index_errors');
+const { NotFoundError, UnauthorizedError } = require('../status_errors');
 
 module.exports.createUser = (req, res, next) => {
   const {

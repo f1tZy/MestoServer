@@ -1,5 +1,5 @@
 const cardModel = require('../models/card');
-const { ForbiddenError, NotFoundError } = require('../status_errors/index_errors');
+const { ForbiddenError, NotFoundError } = require('../status_errors');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
