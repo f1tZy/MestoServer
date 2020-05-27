@@ -3,15 +3,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { requestLogger, errorLogger } = require('./middlewares/logs');
+const { errorHandler } = require('./middlewares/error-handler');
+const NotFoundError = require('./status_errors/not_found');
 
 const router = require('./routes/index.js');// роутер карточек и пользователя
 const { PORT, DATA_URL } = require('./config/config');
 const { login, createUser } = require('./controllers/users');// авторизация и регистрация пользователя
+const { signInValid, signUpValid } = require('./middlewares/validation');
 
 
 const app = express();
+
+const limite = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+// подключаем лимит для ограничения запросов nginx
+app.use(limite);
+
+// подключаем helmet
+app.use(helmet());
 
 app.use(cookieParser());
 
@@ -25,32 +41,38 @@ mongoose.connect(DATA_URL, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// подключаем helmet
-app.use(helmet());
+// подключаем логи запросов
+app.use(requestLogger);
+
+// тест для краша сервера
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 // общий запрос на роутер
 app.use('/', router);
 
-// запрос на логин
-app.post('/signin', login);
+// запрос на логин, и тут же валидация через joi
+app.post('/signin', signInValid, login);
 
-// запрос на регистрацию пользовотеля, и тут же валидация через joi
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2),
-    avatar: Joi.string().required().min(2),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), createUser);
+// запрос на регистрацию пользователя, и тут же валидация через joi
+app.post('/signup', signUpValid, createUser);
 
 // ошибка на не существующий ресурс
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Запрашиваемый ресурс не найден'));
 });
 
+// логи ошибок
+app.use(errorLogger);
+
+// делаем ошибки joi в формате json
 app.use(errors());
+
+// обработка 500ой ошибки
+app.use(errorHandler);
 
 // запускаем сервер на 3000 порте
 app.listen(PORT);

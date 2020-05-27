@@ -1,9 +1,11 @@
 const router = require('express').Router();
 
-const { createUser, getAllUsers, getUser } = require('../controllers/users');
+const { getAllUsers, getUser } = require('../controllers/users');
+const { IdValid } = require('../middlewares/validation');
 
 router.get('/', getAllUsers);// возвращаем список пользователей
-router.post('/', createUser);// создание пользователя
-router.get('/:id', getUser);// получения пользователя по id
+
+// получения пользователя по id
+router.get('/:id', IdValid, getUser);
 
 module.exports = router;
